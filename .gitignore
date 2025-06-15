@@ -1,1 +1,4 @@
 Experiments/related_problems
+*.exe
+Experiments/MaxFlow/testCases
+Experiments/MaxMatching/testCases
