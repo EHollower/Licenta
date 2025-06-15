@@ -1,6 +1,7 @@
 # Flux, Tăieturi Minime și Cuplaje: Aplicații în Optimizare și Măsurarea Performanței
 
 **Absolvent**: *Bucă Mihnea-Vicențiu*
+
 **Coordonator științific**: *Lect. dr. Dumitran Adrian Marius*
 
 În acest repository analizăm algoritmi clasici și moderni pentru rezolvarea problemelor de flux maxim, tăieturi minime și cuplaje în grafuri bipartite. Studiul include implementări și comparații între metode fundamentale precum [Ford-Fulkerson](https://en.wikipedia.org/wiki/Ford–Fulkerson_algorithm), [Edmonds-Karp](https://en.wikipedia.org/wiki/Edmonds–Karp_algorithm), [Push-Relabel](https://en.wikipedia.org/wiki/Push–relabel_maximum_flow_algorithm), [Dinic](https://en.wikipedia.org/wiki/Dinic's_algorithm), etc. Pentru evaluarea performanței, am generat rețele cu diverse caracteristici structurale (de la instanțe *sparse* (rare) la *dense*), precum și teste standard preluate din colecții publice recunoscute din cultura informatică precum [CSES](https://cses.fi/problemset/), [LibreOJ](https://loj.ac/), [Infoarena](https://infoarena.ro/arhiva-educationala) și alte arhive accesibile, care oferă cazuri de test curate și relevante pentru a putea fi folosite în validarea algoritmilor utilizați.
