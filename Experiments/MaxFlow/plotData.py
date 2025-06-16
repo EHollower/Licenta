@@ -336,12 +336,12 @@ def plotTLEHeatmap(df, alg, out_dir, node_bins=10, edge_bins=10):
 
     alg_color = color_mapping.get(alg, '#D62728')
     ax.text(0.5, 1.04, alg, transform=ax.transAxes, ha='center', va='bottom', fontproperties=premium_fp, fontsize=18, color=alg_color)
-    ax.text(0.5, 1.00, 'TLE Rate by Node x Edge Bins',
+    ax.text(0.5, 1.00, 'Rata de teste care obțin LTE pe clase de noduri și muchii',
             transform=ax.transAxes, ha='center', va='bottom',
             fontproperties=premium_fp, fontsize=18, color='black')
 
-    ax.set_xlabel('Edges', fontproperties=premium_fp, fontsize=14)
-    ax.set_ylabel('Nodes', fontproperties=premium_fp, fontsize=14)
+    ax.set_xlabel('Muchii', fontproperties=premium_fp, fontsize=14)
+    ax.set_ylabel('Noduri', fontproperties=premium_fp, fontsize=14)
 
     # annotate every existing bin (including 0% TLE)
     for i in range(tle_ratio.shape[0]):
@@ -461,7 +461,7 @@ def plotCDF(df, algs, out_dir):
     ax.set_title('Distribuția cumulativă a timpilor de execuție', fontproperties=premium_fp, fontsize=16, pad=15)
     ax.yaxis.set_major_formatter(PercentFormatter(xmax=1))
 
-    leg = ax.legend(title='Algoritmi (LTE %)', fontsize=12, title_fontsize=14,
+    leg = ax.legend(title='Algoritmi (LTD %)', fontsize=12, title_fontsize=14,
                     frameon=True, edgecolor='#444444',
                     loc='center left', bbox_to_anchor=(1.02,0.5))
 
@@ -476,36 +476,44 @@ def plotCDF(df, algs, out_dir):
     )
     plt.close(fig)
 
-def print_geometric_mean_ratio(df, alg1, alg2):
-    """Compute and print the geometric mean of runtime ratios (alg2/alg1) across common testcases."""
-    # filter out TLE and convert to float
+def print_geometric_mean_ratio(df, alg1, alg2,
+                               eps=1e-6,
+                               tle_penalty=1e6):
+    # Extract subsets
     sub1 = df[df['Algorithm'] == alg1].copy()
     sub2 = df[df['Algorithm'] == alg2].copy()
-    sub1 = sub1[sub1['RuntimeMs'].astype(str) != 'TLE']
-    sub2 = sub2[sub2['RuntimeMs'].astype(str) != 'TLE']
-    sub1['RuntimeMs'] = sub1['RuntimeMs'].astype(float)
-    sub2['RuntimeMs'] = sub2['RuntimeMs'].astype(float)
-    # merge on Testcase
+    
+    # Replace 'TLE' by a large penalty value, convert to float
+    for sub in (sub1, sub2):
+        sub['RuntimeMs'] = sub['RuntimeMs'].replace('TLE', tle_penalty).astype(float)
+        sub['RuntimeMs'] = sub['RuntimeMs'].replace(0, eps)  
+    
+    # Merge on Testcase
     merged = pd.merge(
         sub1[['Testcase','RuntimeMs']],
         sub2[['Testcase','RuntimeMs']],
-        on='Testcase', suffixes=(f'_{alg1}', f'_{alg2}')
+        on='Testcase',
+        suffixes=(f'_{alg1}', f'_{alg2}')
     )
-    # compute ratios
-    # replace zero denominators with minimal constant to avoid division by zero
-    eps = 1e-3
-    denom = merged[f'RuntimeMs_{alg1}'].replace(0, eps)
+    
+    # Prepare denominator: add eps to any zero (or negative) values
+    denom = merged[f'RuntimeMs_{alg1}'].copy()
+    # denom = denom.where(denom > eps, eps)
+    
+    # Compute ratios
     ratios = merged[f'RuntimeMs_{alg2}'] / denom
-    # filter to positive, finite ratios to avoid log errors
-    valid = ratios[np.isfinite(ratios) & (ratios > eps)]
-    n = len(valid)
+    
+    # Filter to positive, finite
+    # valid = ratios[np.isfinite(ratios) & (ratios > 0)]
+    n = len(ratios)
     if n == 0:
         print(f"No valid positive ratios for {alg2}/{alg1}")
         return float('nan')
-    # geometric mean
-    gm = np.exp(np.mean(np.log(valid)))
+    
+    # Geometric mean
+    gm = np.exp(np.mean(np.log(ratios)))
     print(f"Geometric mean of {alg2}/{alg1} over {n} testcases: {gm:.4f}")
-    return gm
+    print(1 / gm)
 
 # Theme & styling
 custom_params = {"axes.spines.right": False, "axes.spines.top": False}
@@ -519,7 +527,10 @@ os.makedirs(out_dir, exist_ok=True)
 # Load & filter data
 df = pd.read_csv(df_path)
 
-plotAccRate(df, ['Edmonds-Karp', 'Scaling', 'Dinic', 'Dinic-Scaling', 'ISAP', 'MPM', 'Push-Relabel', 'Push-Relabel-Highest', 'Push-Relabel-Gap', 'Push-Relabel-HG', 'HLPP'], out_dir)
+for alg in df['Algorithm'].unique():
+    plotTLEHeatmap(df, alg, out_dir + '/heatmaps')
+
+# plotAccRate(df, ['Edmonds-Karp', 'Scaling', 'Dinic', 'Dinic-Scaling', 'ISAP', 'MPM', 'Push-Relabel', 'Push-Relabel-Highest', 'Push-Relabel-Gap', 'Push-Relabel-HG', 'HLPP'], out_dir)
 
 # plotHeatmap(df, 'Edmonds-Karp', out_dir + '/heatmaps')
 # plotTLEHeatmap(df, 'Edmonds-Karp', out_dir + '/heatmaps')
@@ -559,3 +570,7 @@ plotAccRate(df, ['Edmonds-Karp', 'Scaling', 'Dinic', 'Dinic-Scaling', 'ISAP', 'M
 
 # plotCDF(df, ['HLPP', 'Push-Relabel-HG'], out_dir + '/comparisons')
 # plotCDF(df, ['Dinic', 'HLPP'], out_dir + '/comparisons')
+
+print_geometric_mean_ratio(df, 'Edmonds-Karp', 'Dinic')
+print_geometric_mean_ratio(df, 'Push-Relabel-HG', 'HLPP')
+print_geometric_mean_ratio(df, 'Edmonds-Karp', 'HLPP')
