@@ -90,6 +90,28 @@ def plotAccRate(df, algs, out_dir):
         ax.text(bar.get_x()+bar.get_width() / 2, bar.get_height() + 1,
                 f"{rate * 100:.1f}%", ha = 'center', va = 'bottom', fontsize = 12, fontweight = 'bold', color = '#444')
 
+    # annotate with actual algorithmic complexities
+    complexity_map = {
+        'Edmonds-Karp':    'V E²',
+        'Scaling':         'V E log U',
+        'Dinic':           'V² E',
+        'Dinic-Scaling':   'V E log U',
+        'MPM':             'V³',
+        'ISAP':            'V² E',
+        'Push-Relabel':    'V³',
+        'Push-Relabel-Highest': 'V³',
+        'Push-Relabel-Gap':     'V³',
+        'Push-Relabel-HG':      'V²√E',
+        'HLPP':           'V²√E'
+    }
+    for bar, alg in zip(bars, sorted_algs):
+        ax.text(
+            bar.get_x()+bar.get_width()/2,
+            bar.get_height() + 6,
+            complexity_map.get(alg, ''),
+            ha='center', va='bottom', fontsize=10, color='#222'
+        )
+
     # styling
     ax.set_title("Rata de Acceptare în Funcție de Algoritm", fontsize = 20, fontweight = 'bold')
     ax.set_ylabel(" Procentajul ratei de acceptare (%)", fontsize = 14)
@@ -499,41 +521,41 @@ df = pd.read_csv(df_path)
 
 plotAccRate(df, ['Edmonds-Karp', 'Scaling', 'Dinic', 'Dinic-Scaling', 'ISAP', 'MPM', 'Push-Relabel', 'Push-Relabel-Highest', 'Push-Relabel-Gap', 'Push-Relabel-HG', 'HLPP'], out_dir)
 
-plotHeatmap(df, 'Edmonds-Karp', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'Edmonds-Karp', out_dir + '/heatmaps')
+# plotHeatmap(df, 'Edmonds-Karp', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'Edmonds-Karp', out_dir + '/heatmaps')
 
-plotHeatmap(df, 'Scaling', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'Scaling', out_dir + '/heatmaps')
+# plotHeatmap(df, 'Scaling', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'Scaling', out_dir + '/heatmaps')
 
-plotCDF(df, ['Edmonds-Karp', 'Scaling'], out_dir + '/comparisons')
+# plotCDF(df, ['Edmonds-Karp', 'Scaling'], out_dir + '/comparisons')
 
-plotHeatmap(df, 'MPM', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'MPM', out_dir + '/heatmaps')
+# plotHeatmap(df, 'MPM', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'MPM', out_dir + '/heatmaps')
 
-plotHeatmap(df, 'ISAP', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'ISAP', out_dir + '/heatmaps')
+# plotHeatmap(df, 'ISAP', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'ISAP', out_dir + '/heatmaps')
 
-plotHeatmap(df, 'Dinic', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'Dinic', out_dir + '/heatmaps')
+# plotHeatmap(df, 'Dinic', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'Dinic', out_dir + '/heatmaps')
 
-plotHeatmap(df, 'Dinic-Scaling', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'Dinic-Scaling', out_dir + '/heatmaps')
+# plotHeatmap(df, 'Dinic-Scaling', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'Dinic-Scaling', out_dir + '/heatmaps')
 
-plotHeatmap(df, 'Push-Relabel', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'Push-Relabel', out_dir + '/heatmaps')
-plotHeatmap(df, 'Push-Relabel-Highest', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'Push-Relabel-Highest', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'Push-Relabel-Gap', out_dir + '/heatmaps')
-plotHeatmap(df, 'Push-Relabel-Gap', out_dir + '/heatmaps')
+# plotHeatmap(df, 'Push-Relabel', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'Push-Relabel', out_dir + '/heatmaps')
+# plotHeatmap(df, 'Push-Relabel-Highest', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'Push-Relabel-Highest', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'Push-Relabel-Gap', out_dir + '/heatmaps')
+# plotHeatmap(df, 'Push-Relabel-Gap', out_dir + '/heatmaps')
 
-plotCDF(df, ['Push-Relabel', 'Push-Relabel-Highest', 'Push-Relabel-Gap'], out_dir + '/comparisons')
-plotCDF(df, ['Dinic', 'Push-Relabel'], out_dir + '/comparisons')
+# plotCDF(df, ['Push-Relabel', 'Push-Relabel-Highest', 'Push-Relabel-Gap'], out_dir + '/comparisons')
+# plotCDF(df, ['Dinic', 'Push-Relabel'], out_dir + '/comparisons')
 
-plotHeatmap(df, 'Push-Relabel-HG', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'Push-Relabel-HG', out_dir + '/heatmaps')
+# plotHeatmap(df, 'Push-Relabel-HG', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'Push-Relabel-HG', out_dir + '/heatmaps')
 
-plotHeatmap(df, 'HLPP', out_dir + '/heatmaps')
-plotTLEHeatmap(df, 'HLPP', out_dir + '/heatmaps')
+# plotHeatmap(df, 'HLPP', out_dir + '/heatmaps')
+# plotTLEHeatmap(df, 'HLPP', out_dir + '/heatmaps')
 
-plotCDF(df, ['HLPP', 'Push-Relabel-HG'], out_dir + '/comparisons')
-plotCDF(df, ['Dinic', 'HLPP'], out_dir + '/comparisons')
+# plotCDF(df, ['HLPP', 'Push-Relabel-HG'], out_dir + '/comparisons')
+# plotCDF(df, ['Dinic', 'HLPP'], out_dir + '/comparisons')
